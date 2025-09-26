@@ -1,0 +1,58 @@
+body{
+     font-family: 'Roboto Condensed', sans-serif;
+}
+
+.WrabAuto {
+     width: 85vw;
+     margin: auto;
+ }
+ .FormCheckOut{
+     width: 50%;
+     margin: auto;
+ }
+.FormCheckOut .FormWrap{
+     display: grid;
+     gap: 20px;
+}
+
+.FormCheckOut .FrmItems{
+     position: relative;
+}
+
+.FrmItems .FrmLabel {
+     display: block;
+     position: absolute;
+     top: -6px;
+     left: 8px;
+     z-index: 2;
+     font-size: 15px;
+     padding: 0 5px;
+     background: #fff;
+     font-weight: bold;
+     padding-left: 12px;
+ }
+ .FrmItems .FrmLabel i{
+     color: red;
+    font-size: 10px;
+    height: 11px;
+    margin: auto;
+    z-index: 1;
+    position: absolute;
+    left: 0px;
+    top: 2px;
+ }
+
+ .FrmItems .SelectIn ,
+ .FrmItems .FrmInput{
+     border: 1px solid gray;
+    border-radius: 5px;
+    position: relative;
+    width: 100%;
+    min-height: 45px;
+    outline: none;
+    padding: 0 8px;
+    background: #ffffff;
+ }
+ .FrmItems .SelectIn option{
+     font-size: 15px;
+ }
