@@ -52,12 +52,12 @@ class ChatbotController extends Controller
         ]);
 
         // 2) Prepare data for AI
-        $tours = Tour::all(['id', 'name', 'price', 'duration', 'departure_location', 'description'])->map(function($tour) {
-            return "Tour {$tour->name} - Giá: " . number_format($tour->price) . "đ - Thời gian: {$tour->duration} - Khởi hành từ: {$tour->departure_location}";
+        $tours = Tour::all(['id', 't_title', 't_price_adults', 't_journeys', 't_starting_gate', 't_description'])->map(function($tour) {
+            return "Tour {$tour->t_title} - Giá: " . number_format($tour->t_price_adults) . "đ - Thời gian: {$tour->t_journeys} - Khởi hành từ: {$tour->t_starting_gate}";
         })->toArray();
 
-        $hotels = Hotel::all(['id', 'name', 'address', 'price_range', 'description'])->map(function($hotel) {
-            return "Khách sạn {$hotel->name} - Địa chỉ: {$hotel->address} - Giá từ: " . number_format($hotel->price_range) . "đ";
+        $hotels = Hotel::all(['id', 'h_name', 'h_address', 'h_price', 'h_description'])->map(function($hotel) {
+            return "Khách sạn {$hotel->h_name} - Địa chỉ: {$hotel->h_address} - Giá từ: " . number_format($hotel->h_price) . "đ";
         })->toArray();
 
         $tourList = implode("\n", $tours);
