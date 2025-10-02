@@ -3,18 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\GeminiConsultationService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use App\Models\ChatMessage;
-use App\Models\Product;//thay thành model tour
-use Illuminate\Http\Controller;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Env;
-use Exception;
+use App\Models\Tour;
+use App\Models\Hotel;
 use Str;
 
 class ChatbotController extends Controller
@@ -38,7 +31,7 @@ class ChatbotController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        $userId = Auth::Id();
+        $userId = Auth::id();
 
         // --- Handle guest token (cookie) ---
         $guestToken = null;
@@ -58,14 +51,35 @@ class ChatbotController extends Controller
             'message' => $request->message,
         ]);
 
-        // 2) Prepare prompt
-        $products = Produc::where('stock', '>', 0)->get(['name','price','unit','description'])->map(function($p){
-            return "{$p->name} - {$p->price} / {$p->unit}";
+        // 2) Prepare data for AI
+        $tours = Tour::all(['id', 'name', 'price', 'duration', 'departure_location', 'description'])->map(function($tour) {
+            return "Tour {$tour->name} - Giá: " . number_format($tour->price) . "đ - Thời gian: {$tour->duration} - Khởi hành từ: {$tour->departure_location}";
         })->toArray();
-        $productList = implode("\n", $product);
 
-        $prompt = "Bạn là trợ lý bán hàng cho website rau củ. Dưới đây là danh sách một số sản phẩm hiện có: \n$productList\n
-                    Hãy trả lời ngắn gọn, trung thực, chỉ dùng thông tin trong danh sách nếu cần.";
+        $hotels = Hotel::all(['id', 'name', 'address', 'price_range', 'description'])->map(function($hotel) {
+            return "Khách sạn {$hotel->name} - Địa chỉ: {$hotel->address} - Giá từ: " . number_format($hotel->price_range) . "đ";
+        })->toArray();
+
+        $tourList = implode("\n", $tours);
+        $hotelList = implode("\n", $hotels);
+
+        $prompt = "Bạn là trợ lý tư vấn du lịch chuyên nghiệp. Nhiệm vụ của bạn là tư vấn về các tour du lịch và khách sạn sau:
+
+DANH SÁCH TOUR:
+$tourList
+
+DANH SÁCH KHÁCH SẠN:
+$hotelList
+
+Hướng dẫn trả lời:
+1. Trả lời ngắn gọn, chính xác, thân thiện
+2. Chỉ sử dụng thông tin có trong danh sách tour và khách sạn
+3. Nếu khách hỏi về giá, hãy nêu rõ giá tiền kèm thời gian của tour
+4. Nếu khách quan tâm tour cụ thể, hãy giới thiệu cả khách sạn phù hợp trong khu vực
+5. Nếu không có thông tin để trả lời, hãy đề nghị khách liên hệ trực tiếp với công ty
+6. Không được tự ý thêm thông tin không có trong danh sách
+
+Hãy tư vấn theo yêu cầu của khách:";
         
         //Get history lasted (Exp: 6 msg ~ 3 turns user-bot)
         $history = ChatMessage::query()->where(function($q) use ($userId, $guestToken) {
@@ -75,7 +89,7 @@ class ChatbotController extends Controller
                 $q->where('guest_token', $guestToken);
             }
         })
-        ->lastest()
+        ->latest()
         ->limit(6)
         ->orderBy('created_at','asc')
         ->get();
@@ -106,7 +120,7 @@ class ChatbotController extends Controller
                             ["text" => $prompt]
                         ]
                     ],
-                    "contents"=> $contents
+                    "contents"=> $content
                 ];
 
                 //Call API Gemini

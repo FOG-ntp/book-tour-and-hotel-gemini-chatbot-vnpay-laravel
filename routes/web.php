@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\ChatbotController;
 
 
 /*
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Artisan;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
 
 
 Route::get('/clear-cache', function() {
@@ -193,6 +195,6 @@ Route::group(['namespace' => 'Page'], function() {
 Route::match(['get', 'post'], '/botman', 'App\Http\Controllers\BotManController@handle');
 
 //chatbot-ai
-Route::get('/chatbot/messages', [ChatbotController::class, 'fetchMessages']);
-Route::post('/chatbot/send',[ChatbotController::class, 'sendMessages']);
+Route::get('/chat/messages', [ChatbotController::class, 'fetchMessages']);
+Route::post('/chat/send',[ChatbotController::class, 'sendMessages']);
 

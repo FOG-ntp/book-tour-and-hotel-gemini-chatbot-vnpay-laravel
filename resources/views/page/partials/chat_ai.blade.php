@@ -181,7 +181,7 @@
 </head>
 <body>
 
-<div id="chat-widget" class="chat-widget">
+<div id="chat-widget" >
     <!-- Nút bật/tắt chatbot -->
     <div id="chat-toggle">💬</div>
 
@@ -200,7 +200,55 @@
 </div>
 
 <script>
-    // Hàm escapeHtml để bảo mật nội dung tin nhắn, tránh XSS
+    $(document).ready(function() {
+        // Xử lý bật/tắt hộp chat
+        $("#chat-toggle").click(function() {
+            const chatBox = $("#chat-box");
+            chatBox.toggleClass("hidden");
+            
+            if (!chatBox.hasClass("hidden")) {
+                $("#chat-toggle").hide(); 
+                loadMessages();
+
+            } else {
+                $("#chat-toggle").show();
+            }
+        });
+
+        // Xử lý đóng hộp chat
+        $("#chat-close").click(function() {
+            $("#chat-box").addClass("hidden");
+            // Khi đóng bằng nút X -> Hiện nút toggle
+            $("#chat-toggle").show(); 
+        });
+
+        // Xử lý gửi tin nhắn
+        $("#send-btn").click(function() {
+            var mgs = $("#message-input").val().trim();
+            if (!mgs) return; 
+
+            $.ajaxSetup({});
+
+            // Giả lập gọi API để gửi tin nhắn
+            $.post('/chat/send', { message: mgs }, function(res){
+                if (res.user) appendOne(res.user);
+                if (res.bot) appendOne(res.bot);
+                $("#message-input").val('');
+            }).fail(function(){
+                appendOne({ sender: 'bot', message: 'Lỗi: không gửi được tin nhắn.'});
+            });
+        });
+
+        // Enter để gửi tin nhắn
+        $("#message-input").keypress(function(e){
+            if (e.which === 13){
+                e.preventDefault(); // Ngăn chặn việc xuống dòng mặc định
+                $("#send-btn").click();
+                return false;
+            }
+        });
+
+        // Hàm escapeHtml để bảo mật nội dung tin nhắn, tránh XSS
     function escapeHtml(text) {
         return $('<div/>').text(text).html()
     }
@@ -216,73 +264,18 @@
     // Hàm tải lịch sử tin nhắn
     function loadMessages()
     {
-      $("#chat-messages").html('');
-      $.get('/chat/messages', function(msgs){
+        $("#chat-messages").html('');
+        $.get('/chat/messages', function(msgs){
 
         if (!msgs || msgs.length === 0) {
-          $("chat-messages").append(`<div class="bot-msg">Xin chào!, tôi có thể giúp gì cho bạn ?</div>`);
-          return;
+            $("#chat-messages").append(`<div class="bot-msg">Xin chào 👍!, tôi có thể giúp gì cho bạn ?</div>`);
+            return;
         }
+        console.log('messages: ', msgs);
 
         msgs.forEach(function(m){appendOne(m); });
         $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
-      });
+        });
     }
-
-
-    $(document).ready(function() {
-        // Xử lý bật/tắt hộp chat
-        $("#chat-toggle").click(function() {
-            const chatBox = $("#chat-box");
-            chatBox.toggleClass("hidden");
-            
-            if (!chatBox.hasClass("hidden")) {
-                // Nếu chat box được mở -> Ẩn nút toggle
-                $("#chat-toggle").hide(); 
-                loadMessages();
-                $("#message-input").focus(); // Tự động focus vào ô nhập liệu khi mở
-            } else {
-                 // Nếu chat box được đóng (bằng nút toggle) -> Hiện nút toggle
-                 $("#chat-toggle").show();
-            }
-        });
-
-        // Xử lý đóng hộp chat
-        $("#chat-close").click(function() {
-            $("#chat-box").addClass("hidden");
-            // Khi đóng bằng nút X -> Hiện nút toggle
-            $("#chat-toggle").show(); 
-        });
-
-        // Xử lý gửi tin nhắn
-        $("#send-btn").click(function() {
-            var message = $("#message-input").val().trim();
-            if (!message) return; 
-
-
-            // Giả lập gọi API để gửi tin nhắn
-            $.post('/chat/send', { message: message }, function(res){
-                // Giả định response trả về tin nhắn của bot
-                if (res.bot) {
-                    // Thêm tin nhắn phản hồi của bot vào giao diện
-                    appendOne(res.bot);
-                }
-                if (res.user) {
-                  appendOne(res.user);
-                }
-            }).fail(function(){
-                // Thông báo lỗi nếu gửi thất bại
-                appendOne({ sender: 'bot', message: 'Lỗi: không gửi được tin nhắn.'});
-            });
-        });
-
-        // Enter để gửi tin nhắn
-        $("#message-input").keypress(function(e){
-            if (e.which === 13){
-                e.preventDefault(); // Ngăn chặn việc xuống dòng mặc định
-                $("#send-btn").click();
-                return false;
-            }
-        });
     });
 </script>
