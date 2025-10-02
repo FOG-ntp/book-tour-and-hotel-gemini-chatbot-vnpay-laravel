@@ -192,3 +192,7 @@ Route::group(['namespace' => 'Page'], function() {
 });
 Route::match(['get', 'post'], '/botman', 'App\Http\Controllers\BotManController@handle');
 
+//chatbot-ai
+Route::get('/chatbot/messages', [ChatbotController::class, 'fetchMessages']);
+Route::post('/chatbot/send',[ChatbotController::class, 'sendMessages']);
+

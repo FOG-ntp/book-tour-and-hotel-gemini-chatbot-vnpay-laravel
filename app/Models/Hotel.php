@@ -37,6 +37,7 @@ class Hotel extends Model
 
     public function location ()
     {
+        // Mối quan hệ với Location và chỉ lấy các địa điểm đang hiển thị (l_status = 1)
         return $this->belongsTo(Location::class, 'h_location_id', 'id')->where('l_status', 1);
     }
 
@@ -64,7 +65,8 @@ class Hotel extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('h_status', 1);
+        // Scope để lọc khách sạn đang 'Xuất bản' (STATUS = 1)
+        return $query->where('h_status', 1); 
     }
 
     public function comments()

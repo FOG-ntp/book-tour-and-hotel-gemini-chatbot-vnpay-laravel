@@ -46,11 +46,20 @@ class Location extends Model
 
     public function tours()
     {
+        // Mối quan hệ: Một địa điểm có nhiều Tour (đang diễn ra, t_status = 1)
         return $this->hasMany(Tour::class, 't_location_id', 'id')->where('t_status', 1);
+    }
+    
+    public function hotels()
+    {
+        // Mối quan hệ: Một địa điểm có nhiều Hotel (đang xuất bản, h_status = 1)
+        // Lưu ý: Scope này quan trọng cho Service Class
+        return $this->hasMany(Hotel::class, 'h_location_id', 'id')->where('h_status', 1);
     }
 
     public function scopeActive($query)
     {
-        return $query->where('l_status', 1);
+        // Scope để lọc địa điểm đang 'Hiển thị' (STATUS = 1)
+        return $query->where('l_status', 1); 
     }
 }

@@ -39,11 +39,7 @@ class Tour extends Model
     ];
 
     const STATUS = [
-        // 1 => 'Khởi tạo',
-        // 2 => 'Đang diễn ra',
-        // 3 => 'Đã hoàn tất'
         1 => 'Đang Diễn Ra',
-        // 2 => 'Đang diễn ra',
         3 => 'Đã hoàn tất'
     ];
 
@@ -67,6 +63,7 @@ class Tour extends Model
 
     public function location ()
     {
+        // Mối quan hệ với Location và chỉ lấy các địa điểm đang hiển thị (l_status = 1)
         return $this->belongsTo(Location::class, 't_location_id', 'id')->where('l_status', 1);
     }
 
