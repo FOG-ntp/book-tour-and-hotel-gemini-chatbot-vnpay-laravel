@@ -200,13 +200,14 @@
 
         // Xử lý gửi tin nhắn
         $("#send-btn").click(function() {
-            let mgs = $("#message-input").val().trim();
-            if (!mgs) return; 
-            console.log('message send:',mgs);
+            let msg = $("#message-input").val().trim();
+            if (!msg) return; 
+            console.log('message send:',msg);
             /* $.ajaxSetup({}); */
+            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
 
             // Giả lập gọi API để gửi tin nhắn
-            $.post('/chat/send', { message: mgs }, function(res){
+            $.post('/chat/send', { message: msg }, function(res){
                 if (res.user) appendOne(res.user);
                 if (res.bot) appendOne(res.bot);
                 $("#message-input").val('');
@@ -247,7 +248,6 @@
                 $("#chat-messages").append(`<div class="bot-msg">Xin chào 👍!, tôi có thể giúp gì cho bạn ?</div>`);
                 return;
             }
-            console.log('messages: ', msgs);
 
             msgs.forEach(function(m){appendOne(m); });
             $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);

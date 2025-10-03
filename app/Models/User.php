@@ -52,6 +52,11 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
     }
+
+    public function chatMessages()
+    {
+        return $this->hasMany(ChatMessage::class);
+    }
     public $timestamps = true;
 }
 
