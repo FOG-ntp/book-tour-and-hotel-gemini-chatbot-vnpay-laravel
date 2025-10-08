@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\ChatMessage;
 use App\Models\Tour;
 use App\Models\Hotel;
+use App\Models\User;
 use Illuminate\Support\Str;
 use Throwable;
 

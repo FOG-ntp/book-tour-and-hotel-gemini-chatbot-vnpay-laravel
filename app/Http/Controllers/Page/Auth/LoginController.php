@@ -36,10 +36,9 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct()
     {
         //$this->middleware('guest')->except('logout');
-        $this->user = $user;
     }
 
     public function login()
@@ -54,14 +53,25 @@ class LoginController extends Controller
     public function postLogin(LoginRequest $request)
     {
         $data = $request->except('_token');
-        $user = $this->user->getInfoEmail($data['email']);
+        $user = User::where('email', $data['email'])->first();
 
         if (!$user) {
             return redirect()->back()->with('danger', 'Thông tin tài khoản không tồn tại');
         }
 
+        if($user->status != 1) {
+            return redirect()->back()->with('danger', 'Tài khoản của bạn đã bị khóa');
+        }
+
         if (Auth::guard('users')->attempt($data)) {
-            return redirect()->route('page.home');
+            $user = Auth::guard('users')->user();
+            if ($request->hasCookie('chat_token')) {
+                $guestToken = $request->cookie('chat_token');
+                \App\Models\ChatMessage::where('guest_token', $guestToken)
+                    ->whereNull('user_id')
+                    ->update(['user_id' => $user->id, 'guest_token' => null]);
+            }
+            return redirect()->route('page.home')->withCookie(\Illuminate\Support\Facades\Cookie::forget('chat_token'));
         }
         return redirect()->back()->with('danger', 'Đăng nhập thất bại.');
     }
